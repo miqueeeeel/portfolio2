@@ -1,0 +1,258 @@
+/* =========================
+   RESET Y CONFIGURACIÓN
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: #0b0b0f;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+/* =========================
+   FONDO ANIMADO TIPO FRAMER
+========================= */
+.background {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: radial-gradient(circle at 20% 30%, #1e3a8a, transparent 40%),
+                radial-gradient(circle at 80% 70%, #7c3aed, transparent 40%),
+                radial-gradient(circle at 50% 50%, #0ea5e9, transparent 50%);
+    filter: blur(120px);
+    animation: moveBg 20s infinite alternate ease-in-out;
+}
+
+@keyframes moveBg {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(-50px, 40px) scale(1.1); }
+    100% { transform: translate(50px, -40px) scale(1.2); }
+}
+
+/* =========================
+   MENÚ FLOTANTE GLASS
+========================= */
+.menu {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    backdrop-filter: blur(15px);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 40px;
+    padding: 12px 30px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo { font-weight: bold; color: #60a5fa; }
+
+.menu ul {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+}
+
+.menu a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    transition: 0.3s;
+}
+
+.menu a:hover {
+    opacity: 1;
+    color: #60a5fa;
+}
+
+/* =========================
+   CABECERA HERO
+========================= */
+.Capcelera {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 10%;
+}
+
+.name {
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    max-width: 800px;
+}
+
+.name::after {
+    content: "|";
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%,100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+.skills {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    opacity: 0.6;
+}
+
+/* =========================
+   ABOUT + ÓRBITA ELÍPTICA (HALO CORREGIDO)
+========================= */
+.about {
+    padding: 120px 10%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 60px;
+    flex-wrap: wrap;
+}
+
+.photo-orbit-wrapper {
+    position: relative;
+    width: 280px;
+    height: 330px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Eliminamos z-index de aquí para evitar que bloquee a los hijos */
+    transform-style: preserve-3d; 
+}
+
+.profile-pic {
+    width: 250px;
+    height: 300px;
+    object-fit: cover;
+    border-top-left-radius: 255px;
+    border-top-right-radius: 255px;
+    border: 2px solid rgba(255,255,255,0.2);
+    position: relative; 
+    /* La foto se queda en una capa base */
+    z-index: 10; 
+    transition: transform 0.5s ease;
+}
+
+.orbit-path {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Muy importante: el contenedor de la estrella NO debe tener z-index */
+    pointer-events: none;
+    z-index: 11; /* Lo ponemos inicialmente arriba */
+}
+
+.star {
+    position: absolute;
+    font-size: 24px;
+    color: #60a5fa;
+    filter: drop-shadow(0 0 10px #60a5fa);
+    
+    /* Trayectoria elíptica plana en la cabeza */
+    offset-path: ellipse(170px 45px at center 20%);
+    
+    /* Cambiamos la animación para que gestione el z-index de forma agresiva */
+    animation: orbitMove 8s infinite linear;
+}
+
+@keyframes orbitMove {
+    0% { 
+        offset-distance: 0%; 
+        z-index: 20; /* Mucho mayor que la foto (10) */
+        transform: scale(1.2); 
+        opacity: 1;
+    }
+    49% {
+        z-index: 20;
+    }
+    50% { 
+        offset-distance: 50%; 
+        z-index: -1; /* Menor que la foto (10) */
+        transform: scale(0.7); 
+        opacity: 0.4;
+    }
+    51% {
+        z-index: -1;
+    }
+    100% { 
+        offset-distance: 100%; 
+        z-index: 20; 
+        transform: scale(1.2);
+    }
+}
+
+/* =========================
+   PROJECTS, CONTACT & FUN
+========================= */
+.projects, .contact, .fun {
+    padding: 120px 10%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h2 { font-size: 2.5rem; margin-bottom: 40px; }
+p { line-height: 1.7; opacity: 0.85; }
+
+.project-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 40px;
+}
+
+.project-item {
+    padding: 30px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    transition: 0.4s;
+}
+
+.project-item:hover {
+    transform: translateY(-10px);
+    background: rgba(255,255,255,0.08);
+}
+
+/* ANIMACIÓN DE ENTRADA SCROLL */
+section {
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeInUp 1s forwards;
+}
+
+@keyframes fadeInUp {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+    .about { flex-direction: column; text-align: center; }
+    .Capcelera { padding-left: 5%; align-items: center; text-align: center; }
+    .menu { width: 90%; justify-content: center; }
+    .menu ul { gap: 15px; }
+    
+    .star { 
+        /* Ajuste de órbita para móviles */
+        offset-path: ellipse(120px 25px at center 15%); 
+    }
+}
