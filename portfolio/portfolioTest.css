@@ -112,9 +112,8 @@ body {
     font-size: 1.2rem;
     opacity: 0.6;
 }
-
 /* =========================
-   ABOUT + ÓRBITA ELÍPTICA (HALO CORREGIDO)
+   ABOUT + ÓRBITA ELÍPTICA (CORREGIDO)
 ========================= */
 .about {
     padding: 120px 10%;
@@ -132,8 +131,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Eliminamos z-index de aquí para evitar que bloquee a los hijos */
-    transform-style: preserve-3d; 
 }
 
 .profile-pic {
@@ -144,7 +141,6 @@ body {
     border-top-right-radius: 255px;
     border: 2px solid rgba(255,255,255,0.2);
     position: relative; 
-    /* La foto se queda en una capa base */
     z-index: 10; 
     transition: transform 0.5s ease;
 }
@@ -155,9 +151,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    /* Muy importante: el contenedor de la estrella NO debe tener z-index */
     pointer-events: none;
-    z-index: 11; /* Lo ponemos inicialmente arriba */
 }
 
 .star {
@@ -169,36 +163,35 @@ body {
     /* Trayectoria elíptica plana en la cabeza */
     offset-path: ellipse(170px 45px at center 20%);
     
-    /* Cambiamos la animación para que gestione el z-index de forma agresiva */
-    animation: orbitMove 8s infinite linear;
+    animation: orbitMove 10s infinite linear;
 }
 
 @keyframes orbitMove {
     0% { 
         offset-distance: 0%; 
-        z-index: 20; /* Mucho mayor que la foto (10) */
+        z-index: 20;  /* Por DELANTE de la imagen */
         transform: scale(1.2); 
         opacity: 1;
     }
-    49% {
-        z-index: 20;
+    25% {
+        z-index: 20;  /* Sigue por delante */
     }
     50% { 
         offset-distance: 50%; 
-        z-index: -1; /* Menor que la foto (10) */
-        transform: scale(0.7); 
-        opacity: 0.4;
+        z-index: 5;  /* Por DETRÁS de la imagen (menor que 10) */
+        transform: scale(1.7); 
+        opacity: 1;
     }
-    51% {
-        z-index: -1;
+    75% {
+        z-index: 5;  /* Sigue por detrás */
     }
     100% { 
         offset-distance: 100%; 
-        z-index: 20; 
+        z-index: 20;  /* Vuelve por delante */
         transform: scale(1.2);
+        opacity: 1;
     }
 }
-
 /* =========================
    PROJECTS, CONTACT & FUN
 ========================= */
