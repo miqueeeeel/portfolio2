@@ -161,9 +161,8 @@ body {
     filter: drop-shadow(0 0 10px #60a5fa);
     
     /* Trayectoria elíptica plana en la cabeza */
-    offset-path: ellipse(170px 45px at center 20%);
-    
-    animation: orbitMove 10s infinite linear;
+        offset-path: ellipse(40% 15% at center 20%);    
+    animation: orbitMove 9s infinite linear;
 }
 
 @keyframes orbitMove {
@@ -201,6 +200,7 @@ body {
     margin: 0 auto;
 }
 
+
 h2 { font-size: 2.5rem; margin-bottom: 40px; }
 p { line-height: 1.7; opacity: 0.85; }
 
@@ -226,10 +226,10 @@ p { line-height: 1.7; opacity: 0.85; }
 
 /* ANIMACIÓN DE ENTRADA SCROLL */
 section {
-    opacity: 0;
-    transform: translateY(40px);
-    animation: fadeInUp 1s forwards;
+  opacity: 0;
+  animation: fadeInUp 1s forwards;
 }
+
 
 @keyframes fadeInUp {
     to { opacity: 1; transform: translateY(0); }
