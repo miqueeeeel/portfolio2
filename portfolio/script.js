@@ -13,13 +13,10 @@ class GravityMesh {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.mouse = { x: -9999, y: -9999 };
-    this.cols = 20;
-    this.rows = 14;
     this.points = [];
     this.animFrame = null;
-
+    this.CELL_SIZE = 60; // target cell size in px
     this.resize();
-    this.buildGrid();
     this.bindEvents();
     this.animate();
   }
@@ -27,6 +24,10 @@ class GravityMesh {
   resize() {
     this.canvas.width = this.canvas.offsetWidth;
     this.canvas.height = this.canvas.offsetHeight;
+
+    // Dynamic grid based on canvas size
+    this.cols = Math.max(4, Math.ceil(this.canvas.width / this.CELL_SIZE) + 1);
+    this.rows = Math.max(4, Math.ceil(this.canvas.height / this.CELL_SIZE) + 1);
     this.cellW = this.canvas.width / (this.cols - 1);
     this.cellH = this.canvas.height / (this.rows - 1);
     this.buildGrid();
@@ -50,6 +51,7 @@ class GravityMesh {
 
   bindEvents() {
     this._onMouseMove = (e) => {
+      // Convert viewport mouse position to canvas-relative coords
       const rect = this.canvas.getBoundingClientRect();
       this.mouse.x = e.clientX - rect.left;
       this.mouse.y = e.clientY - rect.top;
@@ -59,21 +61,41 @@ class GravityMesh {
       this.mouse.y = -9999;
     };
     window.addEventListener('mousemove', this._onMouseMove);
-    this.canvas.parentElement && this.canvas.parentElement.addEventListener('mouseleave', this._onMouseLeave);
+    document.addEventListener('mouseleave', this._onMouseLeave);
+
+    this._onResize = () => this.resize();
+    window.addEventListener('resize', this._onResize);
   }
 
   destroy() {
     cancelAnimationFrame(this.animFrame);
     window.removeEventListener('mousemove', this._onMouseMove);
+    document.removeEventListener('mouseleave', this._onMouseLeave);
+    window.removeEventListener('resize', this._onResize);
   }
 
   update() {
-    const GRAVITY_RADIUS = 160;
-    const GRAVITY_STRENGTH = 0.28;
+    const GRAVITY_RADIUS = 180;
+    const GRAVITY_STRENGTH = 0.30;
     const SPRING = 0.08;
     const DAMPING = 0.72;
 
+    // Only update points near the visible viewport for performance
+    const rect = this.canvas.getBoundingClientRect();
+    const viewTop = -rect.top;
+    const viewBottom = viewTop + window.innerHeight;
+
     for (const p of this.points) {
+      // Skip points far from visible area (with margin)
+      if (p.oy < viewTop - 300 || p.oy > viewBottom + 300) {
+        // Snap back to rest position
+        p.x += (p.ox - p.x) * 0.1;
+        p.y += (p.oy - p.y) * 0.1;
+        p.vx = 0;
+        p.vy = 0;
+        continue;
+      }
+
       const dx = this.mouse.x - p.x;
       const dy = this.mouse.y - p.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -101,11 +123,19 @@ class GravityMesh {
     const { ctx, cols, rows } = this;
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    ctx.strokeStyle = 'rgba(96, 165, 250, 0.18)';
+    // Only draw visible portion for performance
+    const rect = this.canvas.getBoundingClientRect();
+    const viewTop = -rect.top;
+    const viewBottom = viewTop + window.innerHeight;
+    const marginPx = 200;
+
+    ctx.strokeStyle = 'rgba(96, 165, 250, 0.15)';
     ctx.lineWidth = 1;
 
     // Líneas horizontales
     for (let r = 0; r < rows; r++) {
+      const baseY = this.points[r * cols].oy;
+      if (baseY < viewTop - marginPx || baseY > viewBottom + marginPx) continue;
       ctx.beginPath();
       for (let c = 0; c < cols; c++) {
         const p = this.points[r * cols + c];
@@ -118,16 +148,23 @@ class GravityMesh {
     // Líneas verticales
     for (let c = 0; c < cols; c++) {
       ctx.beginPath();
+      let started = false;
       for (let r = 0; r < rows; r++) {
         const p = this.points[r * cols + c];
-        if (r === 0) ctx.moveTo(p.x, p.y);
+        if (p.oy < viewTop - marginPx || p.oy > viewBottom + marginPx) {
+          started = false;
+          continue;
+        }
+        if (!started) { ctx.moveTo(p.x, p.y); started = true; }
         else ctx.lineTo(p.x, p.y);
       }
       ctx.stroke();
     }
 
-    // Nodos de la malla con brillo dinámico
+    // Nodos de la malla con brillo dinámico (solo visibles)
     for (const p of this.points) {
+      if (p.oy < viewTop - marginPx || p.oy > viewBottom + marginPx) continue;
+
       const dx = this.mouse.x - p.x;
       const dy = this.mouse.y - p.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -135,7 +172,7 @@ class GravityMesh {
 
       ctx.beginPath();
       ctx.arc(p.x, p.y, 1.5 + glow * 3, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(96, 165, 250, ${0.25 + glow * 0.75})`;
+      ctx.fillStyle = `rgba(96, 165, 250, ${0.2 + glow * 0.8})`;
       ctx.fill();
 
       if (glow > 0.4) {
@@ -414,39 +451,42 @@ function initNavScroll() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   7. CANVAS: Malla de gravedad en cada sección
+   7. CANVAS: Malla de gravedad global (una sola para todo #content)
    ───────────────────────────────────────────────────────────── */
 function setupMeshCanvases() {
-  const sections = document.querySelectorAll('section');
-  const meshes = [];
+  const content = document.getElementById('content');
+  if (!content) return;
 
-  sections.forEach(section => {
-    const canvas = document.createElement('canvas');
-    canvas.style.cssText = `
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
-    `;
+  // Ensure positioning context
+  content.style.position = 'relative';
 
-    if (getComputedStyle(section).position === 'static') {
-      section.style.position = 'relative';
-    }
-    section.style.overflow = 'hidden';
-    section.insertBefore(canvas, section.firstChild);
-    meshes.push(new GravityMesh(canvas));
+  const canvas = document.createElement('canvas');
+  canvas.id = 'gravity-mesh-canvas';
+  canvas.style.cssText = `
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  `;
 
-    Array.from(section.children).forEach(child => {
-      if (child !== canvas) {
-        child.style.position = 'relative';
-        child.style.zIndex = '1';
-      }
-    });
+  content.insertBefore(canvas, content.firstChild);
+
+  // Ensure all section content stays above the canvas
+  content.querySelectorAll('section').forEach(section => {
+    section.style.position = 'relative';
+    section.style.zIndex = '1';
   });
 
-  window.addEventListener('resize', () => meshes.forEach(m => m.resize()));
+  // Also elevate <hr> inside content
+  content.querySelectorAll('hr').forEach(hr => {
+    hr.style.position = 'relative';
+    hr.style.zIndex = '1';
+  });
+
+  new GravityMesh(canvas);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -535,6 +575,15 @@ function initShootingStars() {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   11. FLIP CARDS — Click‑to‑flip (mobile / fallback)
+   ───────────────────────────────────────────────────────────── */
+function initFlipCards() {
+  document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('click', () => card.classList.toggle('flipped'));
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
    INIT
    ───────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
@@ -545,5 +594,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavScroll();
   initParallax();
   initShootingStars();
+  initFlipCards();
   new SpaceCursor();
 });

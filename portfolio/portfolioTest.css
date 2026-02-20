@@ -27,16 +27,24 @@ body {
     height: 100%;
     z-index: -1;
     background: radial-gradient(circle at 20% 30%, #1e3a8a, transparent 40%),
-                radial-gradient(circle at 80% 70%, #7c3aed, transparent 40%),
-                radial-gradient(circle at 50% 50%, #0ea5e9, transparent 50%);
+        radial-gradient(circle at 80% 70%, #7c3aed, transparent 40%),
+        radial-gradient(circle at 50% 50%, #0ea5e9, transparent 50%);
     filter: blur(120px);
     animation: moveBg 20s infinite alternate ease-in-out;
 }
 
 @keyframes moveBg {
-    0%   { transform: translate(0, 0) scale(1); }
-    50%  { transform: translate(-50px, 40px) scale(1.1); }
-    100% { transform: translate(50px, -40px) scale(1.2); }
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(-50px, 40px) scale(1.1);
+    }
+
+    100% {
+        transform: translate(50px, -40px) scale(1.2);
+    }
 }
 
 /* =========================
@@ -48,8 +56,8 @@ body {
     left: 50%;
     transform: translateX(-50%);
     backdrop-filter: blur(15px);
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 40px;
     padding: 12px 30px;
     z-index: 1000;
@@ -58,7 +66,10 @@ body {
     gap: 20px;
 }
 
-.logo { font-weight: bold; color: #60a5fa; }
+.logo {
+    font-weight: bold;
+    color: #60a5fa;
+}
 
 .menu ul {
     display: flex;
@@ -98,13 +109,24 @@ body {
 }
 
 .name::after {
-    content: "|";
-    animation: blink 1s infinite;
+    content: " ★";
+    display: inline-block;
+    vertical-align: baseline;
+    margin-left: 0.2em;
+    animation: rotate 5s linear infinite;
+    color: #60a5fa;
+    font-size: 0.6em;
 }
 
-@keyframes blink {
-    0%,100% { opacity: 0; }
-    50% { opacity: 1; }
+@keyframes rotate {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .skills {
@@ -112,6 +134,25 @@ body {
     font-size: 1.2rem;
     opacity: 0.6;
 }
+
+/* =========================
+   CONTENEDOR GLOBAL + MALLA
+========================= */
+#content {
+    position: relative;
+    overflow: hidden;
+}
+
+#gravity-mesh-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
 /* =========================
    ABOUT + ÓRBITA ELÍPTICA (CORREGIDO)
 ========================= */
@@ -139,9 +180,9 @@ body {
     object-fit: cover;
     border-top-left-radius: 255px;
     border-top-right-radius: 255px;
-    border: 2px solid rgba(255,255,255,0.2);
-    position: relative; 
-    z-index: 10; 
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 10;
     transition: transform 0.5s ease;
 }
 
@@ -159,93 +200,259 @@ body {
     font-size: 24px;
     color: #60a5fa;
     filter: drop-shadow(0 0 10px #60a5fa);
-    
+
     /* Trayectoria elíptica plana en la cabeza */
-        offset-path: ellipse(40% 15% at center 20%);    
+    offset-path: ellipse(40% 15% at center 20%);
     animation: orbitMove 9s infinite linear;
 }
 
 @keyframes orbitMove {
-    0% { 
-        offset-distance: 0%; 
-        z-index: 20;  /* Por DELANTE de la imagen */
-        transform: scale(1.2); 
+    0% {
+        offset-distance: 0%;
+        z-index: 20;
+        /* Por DELANTE de la imagen */
+        transform: scale(1.2);
         opacity: 1;
     }
+
     25% {
-        z-index: 20;  /* Sigue por delante */
+        z-index: 20;
+        /* Sigue por delante */
     }
-    50% { 
-        offset-distance: 50%; 
-        z-index: 5;  /* Por DETRÁS de la imagen (menor que 10) */
-        transform: scale(1.7); 
+
+    50% {
+        offset-distance: 50%;
+        z-index: 5;
+        /* Por DETRÁS de la imagen (menor que 10) */
+        transform: scale(1.7);
         opacity: 1;
     }
+
     75% {
-        z-index: 5;  /* Sigue por detrás */
+        z-index: 5;
+        /* Sigue por detrás */
     }
-    100% { 
-        offset-distance: 100%; 
-        z-index: 20;  /* Vuelve por delante */
+
+    100% {
+        offset-distance: 100%;
+        z-index: 20;
+        /* Vuelve por delante */
         transform: scale(1.2);
         opacity: 1;
     }
 }
+
 /* =========================
    PROJECTS, CONTACT & FUN
 ========================= */
-.projects, .contact, .fun {
+.projects,
+.contact,
+.fun {
     padding: 120px 10%;
     max-width: 1200px;
     margin: 0 auto;
 }
 
 
-h2 { font-size: 2.5rem; margin-bottom: 40px; }
-p { line-height: 1.7; opacity: 0.85; }
+h2 {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+}
+
+p {
+    line-height: 1.7;
+    opacity: 0.85;
+}
 
 .project-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 40px;
 }
 
-.project-item {
-    padding: 30px;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
-    backdrop-filter: blur(10px);
-    transition: 0.4s;
+/* ── Flip Card Container ── */
+.project-card {
+    perspective: 900px;
+    height: 420px;
 }
 
-.project-item:hover {
-    transform: translateY(-10px);
-    background: rgba(255,255,255,0.08);
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.project-card:hover .card-inner,
+.project-card.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+/* ── Shared face styles ── */
+.card-front,
+.card-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 20px;
+    padding: 32px 28px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* ── Front face ── */
+.card-front {
+    justify-content: center;
+    gap: 14px;
+}
+
+.card-front h3 {
+    font-size: 1.6rem;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.card-subtitle {
+    font-size: 1.05rem;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.card-tagline {
+    font-size: 0.92rem;
+    opacity: 0.65;
+}
+
+.card-impact {
+    margin-top: 8px;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: #a78bfa;
+    opacity: 1 !important;
+    border-left: 2px solid #a78bfa;
+    padding-left: 12px;
+}
+
+.flip-hint {
+    margin-top: auto;
+    font-size: 0.75rem;
+    opacity: 0.4;
+    text-align: right;
+}
+
+/* ── Back face ── */
+.card-back {
+    transform: rotateY(180deg);
+    gap: 6px;
+    justify-content: center;
+}
+
+.card-back h4 {
+    font-size: 0.95rem;
+    margin-top: 8px;
+    color: #60a5fa;
+}
+
+.card-back p {
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.card-footer {
+    margin-top: auto;
+    padding-top: 10px;
+    font-size: 0.8rem;
+    opacity: 0.5;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── Scrollbar personalizado en cards ── */
+.card-back::-webkit-scrollbar {
+    width: 4px;
+}
+
+.card-back::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.card-back::-webkit-scrollbar-thumb {
+    background: rgba(96, 165, 250, 0.4);
+    border-radius: 4px;
+}
+
+.card-back::-webkit-scrollbar-thumb:hover {
+    background: rgba(96, 165, 250, 0.7);
+}
+
+/* Firefox */
+.card-back {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(96, 165, 250, 0.4) transparent;
 }
 
 /* ANIMACIÓN DE ENTRADA SCROLL */
 section {
-  opacity: 0;
-  animation: fadeInUp 1s forwards;
+    opacity: 0;
+    animation: fadeInUp 1s forwards;
 }
 
 
 @keyframes fadeInUp {
-    to { opacity: 1; transform: translateY(0); }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* =========================
    RESPONSIVE
 ========================= */
 @media (max-width: 768px) {
-    .about { flex-direction: column; text-align: center; }
-    .Capcelera { padding-left: 5%; align-items: center; text-align: center; }
-    .menu { width: 90%; justify-content: center; }
-    .menu ul { gap: 15px; }
-    
-    .star { 
-        /* Ajuste de órbita para móviles */
-        offset-path: ellipse(120px 25px at center 15%); 
+    .about {
+        flex-direction: column;
+        text-align: center;
     }
+
+    .Capcelera {
+        padding-left: 5%;
+        align-items: center;
+        text-align: center;
+    }
+
+    .menu {
+        width: 90%;
+        justify-content: center;
+    }
+
+    .menu ul {
+        gap: 15px;
+    }
+
+    .star {
+        /* Ajuste de órbita para móviles */
+        offset-path: ellipse(120px 25px at center 15%);
+    }
+}
+
+/* =========================
+   LINKS
+========================= */
+.link {
+    color: #22ff88;
+    text-decoration: none;
+    text-shadow: 0 0 6px rgba(34, 255, 136, 0.4);
+    transition: color 0.3s, text-shadow 0.3s;
+}
+
+.link:hover {
+    color: #5cffaa;
+    text-shadow: 0 0 12px rgba(34, 255, 136, 0.7);
 }
